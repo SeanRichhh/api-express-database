@@ -23,12 +23,12 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
 // extract id from the path
-const id =  req.params.id
+    const id =  req.params.id
 //get data from the table
-const result = await db.query(`SELECT * FROM "books" WHERE id = ${id};`)
+    const result = await db.query(`SELECT * FROM "books" WHERE id = ${id};`)
 //send back a response
-const book = result.rows[0]
-res.json({books:book})
+    const book = result.rows[0]
+    res.json({books:book})
 
 })
 
@@ -40,8 +40,27 @@ router.post('/', async (req,res) => {
           ('${title}', '${type}', '${author}', '${topic}', '${publicationDate}', ${pages}) returning *`
       ) ;
 
-res.json({book: result})
+    res.json({book: result})
     
+})
+
+router.put("/:id", async (req,res) => {
+    const id = req.params.id;
+    const { title, type, author, topic, publicationDate, pages } = req.body;
+
+    const query = "UPDATE books set title = $1, type = $2, author = $3, topic = $4, publicationDate = $5, pages = $6 WHERE id = $7 returning *";
+    const values = [title, type, author, topic, publicationDate, pages, id];
+    const update = await db.query(query, values);
+
+    res.json({ book: update.rows[0] });
+})
+
+router.delete("/:id", async (req, res) => {
+    const id = req.params.id
+    const query = "DELETE from books WHERE id = $1 returning *"
+    const remove = await db.query(query, [id])
+
+    res.json({book : remove})
 })
 
 
